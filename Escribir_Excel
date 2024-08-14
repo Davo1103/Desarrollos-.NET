@@ -2,7 +2,7 @@
 ' El data table lo creamos previamente ya que no se puede declarar dentro del Invoke, pero en dado caso se encuentran los datos en el codigo
 
 ' Declarar variables
-Imports Microsoft.Office.Interop.Excel
+Imports Microsoft.Office.Interop
 Dim excelApp As New Microsoft.Office.Interop.Excel.Application
 Dim workbooks As Microsoft.Office.Interop.Excel.Workbooks = excelApp.Workbooks
 Dim workbook As Microsoft.Office.Interop.Excel.Workbook = Nothing
