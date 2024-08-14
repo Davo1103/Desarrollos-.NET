@@ -1,0 +1,97 @@
+' Con este codigo, podemos escribir información en un excel desde un data Table, esto para un InvokeCode en UiPath.
+' El data table lo creamos previamente ya que no se puede declarar dentro del Invoke, pero en dado caso se encuentran los datos en el codigo
+
+' Declarar variables
+Imports Microsoft.Office.Interop.Excel
+Dim excelApp As New Microsoft.Office.Interop.Excel.Application
+Dim workbooks As Microsoft.Office.Interop.Excel.Workbooks = excelApp.Workbooks
+Dim workbook As Microsoft.Office.Interop.Excel.Workbook = Nothing
+Dim worksheet As Microsoft.Office.Interop.Excel.Worksheet = Nothing
+Dim excelFilePath As String = "C:\Probando\Pruebas.xlsx"
+Dim sheetName As String = "Sheet1"
+Dim contRow As Integer = 2
+Dim cellAddress As String
+Dim arrColumns() As String = {"A","B", "C", "D", "E", "F","G"}
+
+        ' Verificar si el archivo existe
+        If File.Exists(excelFilePath) Then
+            Console.WriteLine("El archivo ya existe.")
+        Else
+            ' Si el archivo no existe, lo creamos
+            Try
+                ' Crear el archivo
+                Console.WriteLine("El archivo ha sido creado exitosamente.")
+            Catch ex As Exception
+                Console.WriteLine("Hubo un error al intentar crear el archivo: " & ex.Message)
+            End Try
+        End If
+		
+Try
+' Agregar filas a la DataTable
+olympicsTable.Rows.Add(1, "United States", 39, 41, 33, 113,"Atletismo")
+olympicsTable.Rows.Add(2, "China", 38, 32, 18, 88,"Levantamiento de pesa")
+olympicsTable.Rows.Add(3, "Japan", 27, 14, 17, 58,"Judo")
+olympicsTable.Rows.Add(4, "Great Britain", 22, 21, 22, 65,"Ciclismo")
+olympicsTable.Rows.Add(5, "ROC (Russian Olympic Committee)", 20, 28, 23, 71,"Gimnasia artística")
+Catch ex As Exception
+	Console.WriteLine("No escribio la tabla debemos revisar")
+End Try
+
+' Intemos escribir la infor en el excel
+Try
+    ' Abrir el archivo Excel
+    workbook = workbooks.Open(excelFilePath)
+    
+    ' Seleccionar la hoja de trabajo
+    worksheet = CType(workbook.Sheets(sheetName), Microsoft.Office.Interop.Excel.Worksheet)
+	
+    
+' Recorremos las filas y columnas de la DataTable para escribir los valores en las celdas de Excel
+For Each rowItem As DataRow In olympicsTable.Rows
+    Dim colIndex As Integer = 0 ' Empezamos desde la primera columna en Excel
+    
+    ' Convertir cada fila en una cadena y manejar errores al escribir en Excel
+    Try
+        ' Escribir cada valor de la fila en su respectiva columna
+        For Each item In rowItem.ItemArray
+			Dim letter As String = arrColumns(colIndex)
+			cellAddress = letter & contRow.ToString
+            worksheet.Range(cellAddress).Value = item.ToString()
+			console.WriteLine("El valir del Item es :: "&item.ToString())
+            colIndex += 1
+        Next
+
+        ' Verificar si se accedió correctamente a la hoja
+        If worksheet Is Nothing Then
+            Throw New Exception("No se pudo acceder a la hoja de Excel.")
+        End If
+
+    Catch ex As Exception
+        Console.WriteLine("La información en el apartado de escritura es incorrecta.")
+        Console.WriteLine("La información del error es :: " & ex.Message)
+    End Try
+    contRow += 1
+Next
+
+    ' Guardar el archivo
+    workbook.Save()
+    
+Finally
+    ' Cerrar el archivo y la aplicación Excel
+    If workbook IsNot Nothing Then workbook.Close(SaveChanges:=False)
+    excelApp.Quit()
+    
+    ' Liberar objetos
+    System.Runtime.InteropServices.Marshal.ReleaseComObject(worksheet)
+    System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook)
+    System.Runtime.InteropServices.Marshal.ReleaseComObject(workbooks)
+    System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp)
+    
+    worksheet = Nothing
+    workbook = Nothing
+    workbooks = Nothing
+    excelApp = Nothing
+    
+    GC.Collect()
+    GC.WaitForPendingFinalizers()
+End Try
